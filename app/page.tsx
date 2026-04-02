@@ -238,3 +238,5 @@ function CartContent({
         </button>
       </div>
     </>
+  )
+}
