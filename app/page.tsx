@@ -212,15 +212,3 @@ function CartContent({
     </>
   )
 }
-```
-
-**What changed:**
-- 📱 Cart is now a **slide-up drawer** on mobile with a dark backdrop
-- 🖥️ Cart stays as a **sidebar** on desktop (md and above)
-- Header is smaller and cleaner on mobile
-- Product grid is 1 column on mobile, 2 on tablet, 3 on desktop
-- All padding/font sizes scale up on larger screens
-
-Replace your entire `page.tsx` with this code, save, then run:
-```
-git add . && git commit -m "Mobile responsive design" && git push
