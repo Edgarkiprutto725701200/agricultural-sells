@@ -8,6 +8,7 @@ type Product = {
   price: number
   category: string
   description: string
+  image_url: string | null
 }
 
 type CartItem = Product & { quantity: number }
@@ -85,30 +86,46 @@ export default function Home() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {products.map(product => (
                 <div key={product.id}
-                     className="bg-white rounded-xl shadow-md p-4 md:p-6 
+                     className="bg-white rounded-xl shadow-md overflow-hidden
                                 hover:shadow-lg transition">
-                  <div className="flex justify-between items-start mb-3">
-                    <h2 className="text-lg md:text-xl font-semibold text-gray-800">
-                      {product.name}
-                    </h2>
-                    <span className="bg-green-100 text-green-700 text-xs md:text-sm 
-                                     px-2 py-1 rounded-full whitespace-nowrap ml-2">
-                      {product.category}
-                    </span>
-                  </div>
-                  <p className="text-gray-500 text-sm mb-4">
-                    {product.description}
-                  </p>
-                  <div className="flex justify-between items-center">
-                    <span className="text-xl md:text-2xl font-bold text-green-600">
-                      KSh {product.price}
-                    </span>
-                    <button
-                      onClick={() => addToCart(product)}
-                      className="bg-green-600 text-white px-3 py-2 md:px-4 
-                                 rounded-lg hover:bg-green-700 transition text-sm md:text-base">
-                      Add to Cart
-                    </button>
+                  {/* Product Image */}
+                  {product.image_url ? (
+                    <img
+                      src={product.image_url}
+                      alt={product.name}
+                      className="w-full h-48 object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-48 bg-green-100 flex items-center 
+                                    justify-center text-5xl">
+                      🌿
+                    </div>
+                  )}
+
+                  <div className="p-4 md:p-5">
+                    <div className="flex justify-between items-start mb-2">
+                      <h2 className="text-lg md:text-xl font-semibold text-gray-800">
+                        {product.name}
+                      </h2>
+                      <span className="bg-green-100 text-green-700 text-xs md:text-sm 
+                                       px-2 py-1 rounded-full whitespace-nowrap ml-2">
+                        {product.category}
+                      </span>
+                    </div>
+                    <p className="text-gray-500 text-sm mb-4">
+                      {product.description}
+                    </p>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xl md:text-2xl font-bold text-green-600">
+                        KSh {product.price}
+                      </span>
+                      <button
+                        onClick={() => addToCart(product)}
+                        className="bg-green-600 text-white px-3 py-2 md:px-4 
+                                   rounded-lg hover:bg-green-700 transition text-sm md:text-base">
+                        Add to Cart
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -135,12 +152,10 @@ export default function Home() {
       {/* Cart Drawer - mobile only */}
       {showCart && (
         <div className="md:hidden fixed inset-0 z-40 flex flex-col justify-end">
-          {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black bg-opacity-40"
             onClick={() => setShowCart(false)}
           />
-          {/* Drawer */}
           <div className="relative bg-white rounded-t-2xl shadow-2xl p-6 max-h-[80vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold text-green-800">🛒 Your Cart</h2>
@@ -163,7 +178,6 @@ export default function Home() {
   )
 }
 
-// Shared cart content component
 function CartContent({
   cart,
   totalPrice,
@@ -181,11 +195,25 @@ function CartContent({
       {cart.map(item => (
         <div key={item.id}
              className="flex justify-between items-center mb-3 pb-3 border-b">
-          <div>
-            <p className="font-medium">{item.name}</p>
-            <p className="text-sm text-gray-500">
-              KSh {item.price} x {item.quantity}
-            </p>
+          <div className="flex items-center gap-2">
+            {/* Mini image in cart */}
+            {item.image_url ? (
+              <img
+                src={item.image_url}
+                alt={item.name}
+                className="w-10 h-10 rounded-lg object-cover"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center text-lg">
+                🌿
+              </div>
+            )}
+            <div>
+              <p className="font-medium">{item.name}</p>
+              <p className="text-sm text-gray-500">
+                KSh {item.price} x {item.quantity}
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <span className="font-bold text-green-600">
@@ -210,5 +238,3 @@ function CartContent({
         </button>
       </div>
     </>
-  )
-}
