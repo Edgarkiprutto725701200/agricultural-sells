@@ -8,7 +8,7 @@ type Product = {
   price: number
   category: string
   description: string
-  image_url: string | null
+  image: string | null
 }
 
 type CartItem = Product & { quantity: number }
@@ -89,9 +89,9 @@ export default function Home() {
                      className="bg-white rounded-xl shadow-md overflow-hidden
                                 hover:shadow-lg transition">
                   {/* Product Image */}
-                  {product.image_url ? (
+                  {product.image ? (
                     <img
-                      src={product.image_url}
+                      src={product.image}
                       alt={product.name}
                       className="w-full h-48 object-cover"
                     />
