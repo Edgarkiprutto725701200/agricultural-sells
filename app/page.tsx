@@ -197,9 +197,9 @@ function CartContent({
              className="flex justify-between items-center mb-3 pb-3 border-b">
           <div className="flex items-center gap-2">
             {/* Mini image in cart */}
-            {item.image_url ? (
+            {item.image ? (
               <img
-                src={item.image_url}
+                src={item.image}
                 alt={item.name}
                 className="w-10 h-10 rounded-lg object-cover"
               />
