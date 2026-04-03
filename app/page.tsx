@@ -339,12 +339,3 @@ function OrdersList({ orders }: { orders: Order[] }) {
     </>
   )
 }
-
-type CartItem = Product & { quantity: number }
-type Order = {
-  id: string
-  created_at: string
-  total_price: number
-  status: string
-  items: CartItem[]
-}
