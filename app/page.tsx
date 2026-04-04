@@ -87,7 +87,6 @@ export default function Home() {
     setMpesaLoading(true)
     setMpesaMessage('')
 
-    // Format phone: 07XXXXXXXX → 2547XXXXXXXX
     let formattedPhone = phone.trim()
     if (formattedPhone.startsWith('0')) {
       formattedPhone = '254' + formattedPhone.slice(1)
@@ -105,7 +104,6 @@ export default function Home() {
       const data = await res.json()
 
       if (data.ResponseCode === '0') {
-        // Save order to Supabase
         await supabase.from('orders').insert({
           total_price: totalPrice,
           status: 'pending',
@@ -151,9 +149,7 @@ export default function Home() {
             onClick={() => setShowMpesa(false)} />
           <div className="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm mx-4">
             <h2 className="text-xl font-bold text-green-800 mb-1">💚 M-Pesa Payment</h2>
-            <p className="text-gray-500 text-sm mb-4">
-              Enter your Safaricom number to pay
-            </p>
+            <p className="text-gray-500 text-sm mb-4">Enter your Safaricom number to pay</p>
             <div className="bg-green-50 rounded-xl p-4 mb-4">
               <p className="text-sm text-gray-600">Total Amount</p>
               <p className="text-3xl font-bold text-green-600">KSh {totalPrice}</p>
@@ -164,12 +160,11 @@ export default function Home() {
               value={phone}
               onChange={e => setPhone(e.target.value)}
               className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 
-                         text-lg mb-4 focus:border-green-500 focus:outline-none"
-            />
+                         text-lg mb-4 focus:border-green-500 focus:outline-none"/>
             {mpesaMessage && (
               <p className={`text-sm mb-4 p-3 rounded-lg ${
-                mpesaMessage.startsWith('✅') 
-                  ? 'bg-green-50 text-green-700' 
+                mpesaMessage.startsWith('✅')
+                  ? 'bg-green-50 text-green-700'
                   : 'bg-red-50 text-red-700'
               }`}>
                 {mpesaMessage}
@@ -194,34 +189,34 @@ export default function Home() {
       )}
 
       {/* Header */}
-      <div className="sticky top-0 z-30 bg-green-50 border-b border-green-100 px-4 py-4 md:px-8">
+      <div className="sticky top-0 z-30 bg-green-50 border-b border-green-100 px-4 py-3 md:px-8">
         <div className="max-w-5xl mx-auto flex justify-between items-center">
           <div>
-            <h1 className="text-2xl md:text-4xl font-bold text-green-800">
+            <h1 className="text-xl md:text-4xl font-bold text-green-800">
               🌽 Agricultural Sells
             </h1>
-            <p className="text-gray-600 text-sm md:text-base">
+            <p className="text-gray-600 text-xs md:text-base">
               Fresh farm products delivered to you
             </p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => { setShowOrders(!showOrders); setShowCart(false); loadOrders() }}
-              className="bg-white border border-green-600 text-green-600 px-3 py-2 
+              className="bg-white border border-green-600 text-green-600 px-2 py-1
                          md:px-4 md:py-3 rounded-xl hover:bg-green-50 transition 
-                         text-sm md:text-base">
+                         text-xs md:text-base">
               📋 Orders
             </button>
             <button
               onClick={() => { setShowCart(!showCart); setShowOrders(false) }}
-              className="bg-green-600 text-white px-4 py-2 md:px-6 md:py-3 
-                         rounded-xl hover:bg-green-700 transition flex items-center gap-2">
+              className="bg-green-600 text-white px-3 py-1 md:px-6 md:py-3 
+                         rounded-xl hover:bg-green-700 transition flex items-center gap-1">
               🛒
-              <span className="hidden sm:inline">Cart</span>
+              <span className="hidden sm:inline text-sm">Cart</span>
               {totalItems > 0 && (
                 <span className="bg-white text-green-600 font-bold 
-                                 rounded-full w-6 h-6 flex items-center 
-                                 justify-center text-sm">
+                                 rounded-full w-5 h-5 flex items-center 
+                                 justify-center text-xs">
                   {totalItems}
                 </span>
               )}
@@ -230,42 +225,50 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 py-6 md:px-8">
-        <div className="flex gap-8">
+      <div className="max-w-5xl mx-auto px-3 py-4 md:px-8">
+        <div className="flex gap-6">
 
           {/* Products Grid */}
           <div className="flex-1">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
               {products.map(product => (
                 <div key={product.id}
                      className="bg-white rounded-xl shadow-md overflow-hidden
                                 hover:shadow-lg transition">
                   {product.image ? (
-                    <img src={product.image} alt={product.name}
-                      className="w-full h-48 object-cover" />
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-full h-32 md:h-48 object-cover"
+                    />
                   ) : (
-                    <div className="w-full h-48 bg-green-100 flex items-center 
-                                    justify-center text-5xl">🌿</div>
+                    <div className="w-full h-32 md:h-48 bg-green-100 flex items-center 
+                                    justify-center text-4xl">
+                      🌿
+                    </div>
                   )}
-                  <div className="p-4 md:p-5">
-                    <div className="flex justify-between items-start mb-2">
-                      <h2 className="text-lg md:text-xl font-semibold text-gray-800">
+                  <div className="p-2 md:p-5">
+                    <div className="flex justify-between items-start mb-1">
+                      <h2 className="text-sm md:text-xl font-semibold text-gray-800 leading-tight">
                         {product.name}
                       </h2>
-                      <span className="bg-green-100 text-green-700 text-xs md:text-sm 
-                                       px-2 py-1 rounded-full whitespace-nowrap ml-2">
+                      <span className="bg-green-100 text-green-700 text-xs
+                                       px-1 py-0.5 rounded-full whitespace-nowrap ml-1 hidden sm:block">
                         {product.category}
                       </span>
                     </div>
-                    <p className="text-gray-500 text-sm mb-4">{product.description}</p>
+                    <p className="text-gray-500 text-xs mb-2 hidden sm:block">
+                      {product.description}
+                    </p>
                     <div className="flex justify-between items-center">
-                      <span className="text-xl md:text-2xl font-bold text-green-600">
+                      <span className="text-sm md:text-2xl font-bold text-green-600">
                         KSh {product.price}
                       </span>
-                      <button onClick={() => addToCart(product)}
-                        className="bg-green-600 text-white px-3 py-2 md:px-4 
-                                   rounded-lg hover:bg-green-700 transition text-sm md:text-base">
-                        Add to Cart
+                      <button
+                        onClick={() => addToCart(product)}
+                        className="bg-green-600 text-white px-2 py-1 md:px-4 md:py-2
+                                   rounded-lg hover:bg-green-700 transition text-xs md:text-base">
+                        Add
                       </button>
                     </div>
                   </div>
@@ -365,12 +368,12 @@ function CartContent({
               </div>
             )}
             <div>
-              <p className="font-medium">{item.name}</p>
-              <p className="text-sm text-gray-500">KSh {item.price} x {item.quantity}</p>
+              <p className="font-medium text-sm">{item.name}</p>
+              <p className="text-xs text-gray-500">KSh {item.price} x {item.quantity}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="font-bold text-green-600">KSh {item.price * item.quantity}</span>
+            <span className="font-bold text-green-600 text-sm">KSh {item.price * item.quantity}</span>
             <button onClick={() => removeFromCart(item.id)}
               className="text-red-400 hover:text-red-600 text-sm">✕</button>
           </div>
@@ -381,16 +384,12 @@ function CartContent({
           <span>Total:</span>
           <span className="text-green-600">KSh {totalPrice}</span>
         </div>
-        {/* M-Pesa button */}
-        <button
-          onClick={onMpesa}
+        <button onClick={onMpesa}
           className="w-full bg-green-600 text-white py-3 rounded-xl 
                      hover:bg-green-700 transition font-semibold mb-2">
           💚 Pay with M-Pesa
         </button>
-        {/* Cash on delivery */}
-        <button
-          onClick={onCheckout}
+        <button onClick={onCheckout}
           className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl 
                      hover:bg-gray-200 transition font-medium">
           Cash on Delivery
