@@ -28,6 +28,10 @@ export default function Home() {
   const [showOrders, setShowOrders] = useState(false)
   const [orders, setOrders] = useState<Order[]>([])
   const [orderPlaced, setOrderPlaced] = useState(false)
+  const [showMpesa, setShowMpesa] = useState(false)
+  const [phone, setPhone] = useState('')
+  const [mpesaLoading, setMpesaLoading] = useState(false)
+  const [mpesaMessage, setMpesaMessage] = useState('')
 
   useEffect(() => {
     async function loadProducts() {
@@ -78,17 +82,114 @@ export default function Home() {
     }
   }
 
+  async function handleMpesaPayment() {
+    if (!phone) return
+    setMpesaLoading(true)
+    setMpesaMessage('')
+
+    // Format phone: 07XXXXXXXX → 2547XXXXXXXX
+    let formattedPhone = phone.trim()
+    if (formattedPhone.startsWith('0')) {
+      formattedPhone = '254' + formattedPhone.slice(1)
+    }
+    if (formattedPhone.startsWith('+')) {
+      formattedPhone = formattedPhone.slice(1)
+    }
+
+    try {
+      const res = await fetch('/api/mpesa/stkpush', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: formattedPhone, amount: totalPrice }),
+      })
+      const data = await res.json()
+
+      if (data.ResponseCode === '0') {
+        // Save order to Supabase
+        await supabase.from('orders').insert({
+          total_price: totalPrice,
+          status: 'pending',
+          items: cart,
+        })
+        setMpesaMessage('✅ STK Push sent! Check your phone to complete payment.')
+        setTimeout(() => {
+          setCart([])
+          setShowCart(false)
+          setShowMpesa(false)
+          setPhone('')
+          setMpesaMessage('')
+          setOrderPlaced(true)
+          setTimeout(() => setOrderPlaced(false), 3000)
+        }, 3000)
+      } else {
+        setMpesaMessage('❌ ' + (data.errorMessage || 'Payment failed. Try again.'))
+      }
+    } catch {
+      setMpesaMessage('❌ Network error. Please try again.')
+    }
+    setMpesaLoading(false)
+  }
+
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0)
   const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
   return (
     <main className="min-h-screen bg-green-50">
 
-      {/* Order placed toast */}
+      {/* Toast */}
       {orderPlaced && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 
                         bg-green-600 text-white px-6 py-3 rounded-xl shadow-lg">
           ✅ Order placed successfully!
+        </div>
+      )}
+
+      {/* M-Pesa Modal */}
+      {showMpesa && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black bg-opacity-50"
+            onClick={() => setShowMpesa(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm mx-4">
+            <h2 className="text-xl font-bold text-green-800 mb-1">💚 M-Pesa Payment</h2>
+            <p className="text-gray-500 text-sm mb-4">
+              Enter your Safaricom number to pay
+            </p>
+            <div className="bg-green-50 rounded-xl p-4 mb-4">
+              <p className="text-sm text-gray-600">Total Amount</p>
+              <p className="text-3xl font-bold text-green-600">KSh {totalPrice}</p>
+            </div>
+            <input
+              type="tel"
+              placeholder="07XXXXXXXX"
+              value={phone}
+              onChange={e => setPhone(e.target.value)}
+              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 
+                         text-lg mb-4 focus:border-green-500 focus:outline-none"
+            />
+            {mpesaMessage && (
+              <p className={`text-sm mb-4 p-3 rounded-lg ${
+                mpesaMessage.startsWith('✅') 
+                  ? 'bg-green-50 text-green-700' 
+                  : 'bg-red-50 text-red-700'
+              }`}>
+                {mpesaMessage}
+              </p>
+            )}
+            <button
+              onClick={handleMpesaPayment}
+              disabled={mpesaLoading || !phone}
+              className="w-full bg-green-600 text-white py-3 rounded-xl 
+                         hover:bg-green-700 transition font-semibold disabled:opacity-50
+                         disabled:cursor-not-allowed mb-2">
+              {mpesaLoading ? '⏳ Sending...' : '💚 Pay with M-Pesa'}
+            </button>
+            <button
+              onClick={() => setShowMpesa(false)}
+              className="w-full bg-gray-100 text-gray-600 py-3 rounded-xl 
+                         hover:bg-gray-200 transition font-medium">
+              Cancel
+            </button>
+          </div>
         </div>
       )}
 
@@ -104,7 +205,6 @@ export default function Home() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            {/* Orders button */}
             <button
               onClick={() => { setShowOrders(!showOrders); setShowCart(false); loadOrders() }}
               className="bg-white border border-green-600 text-green-600 px-3 py-2 
@@ -112,7 +212,6 @@ export default function Home() {
                          text-sm md:text-base">
               📋 Orders
             </button>
-            {/* Cart button */}
             <button
               onClick={() => { setShowCart(!showCart); setShowOrders(false) }}
               className="bg-green-600 text-white px-4 py-2 md:px-6 md:py-3 
@@ -142,16 +241,11 @@ export default function Home() {
                      className="bg-white rounded-xl shadow-md overflow-hidden
                                 hover:shadow-lg transition">
                   {product.image ? (
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-48 object-cover"
-                    />
+                    <img src={product.image} alt={product.name}
+                      className="w-full h-48 object-cover" />
                   ) : (
                     <div className="w-full h-48 bg-green-100 flex items-center 
-                                    justify-center text-5xl">
-                      🌿
-                    </div>
+                                    justify-center text-5xl">🌿</div>
                   )}
                   <div className="p-4 md:p-5">
                     <div className="flex justify-between items-start mb-2">
@@ -163,15 +257,12 @@ export default function Home() {
                         {product.category}
                       </span>
                     </div>
-                    <p className="text-gray-500 text-sm mb-4">
-                      {product.description}
-                    </p>
+                    <p className="text-gray-500 text-sm mb-4">{product.description}</p>
                     <div className="flex justify-between items-center">
                       <span className="text-xl md:text-2xl font-bold text-green-600">
                         KSh {product.price}
                       </span>
-                      <button
-                        onClick={() => addToCart(product)}
+                      <button onClick={() => addToCart(product)}
                         className="bg-green-600 text-white px-3 py-2 md:px-4 
                                    rounded-lg hover:bg-green-700 transition text-sm md:text-base">
                         Add to Cart
@@ -192,6 +283,7 @@ export default function Home() {
                 totalPrice={totalPrice}
                 removeFromCart={removeFromCart}
                 onCheckout={placeOrder}
+                onMpesa={() => setShowMpesa(true)}
               />
             </div>
           )}
@@ -203,7 +295,6 @@ export default function Home() {
               <OrdersList orders={orders} />
             </div>
           )}
-
         </div>
       </div>
 
@@ -223,6 +314,7 @@ export default function Home() {
               totalPrice={totalPrice}
               removeFromCart={removeFromCart}
               onCheckout={placeOrder}
+              onMpesa={() => { setShowCart(false); setShowMpesa(true) }}
             />
           </div>
         </div>
@@ -243,18 +335,18 @@ export default function Home() {
           </div>
         </div>
       )}
-
     </main>
   )
 }
 
 function CartContent({
-  cart, totalPrice, removeFromCart, onCheckout
+  cart, totalPrice, removeFromCart, onCheckout, onMpesa
 }: {
   cart: CartItem[]
   totalPrice: number
   removeFromCart: (id: number) => void
   onCheckout: () => void
+  onMpesa: () => void
 }) {
   if (cart.length === 0) {
     return <p className="text-gray-500">Your cart is empty</p>
@@ -289,11 +381,19 @@ function CartContent({
           <span>Total:</span>
           <span className="text-green-600">KSh {totalPrice}</span>
         </div>
+        {/* M-Pesa button */}
+        <button
+          onClick={onMpesa}
+          className="w-full bg-green-600 text-white py-3 rounded-xl 
+                     hover:bg-green-700 transition font-semibold mb-2">
+          💚 Pay with M-Pesa
+        </button>
+        {/* Cash on delivery */}
         <button
           onClick={onCheckout}
-          className="w-full bg-green-600 text-white py-3 rounded-xl 
-                     hover:bg-green-700 transition font-semibold">
-          Checkout →
+          className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl 
+                     hover:bg-gray-200 transition font-medium">
+          Cash on Delivery
         </button>
       </div>
     </>
