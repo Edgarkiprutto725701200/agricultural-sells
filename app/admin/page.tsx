@@ -33,47 +33,12 @@ export default function AdminPage() {
   const [password, setPassword] = useState('')
   const [wrongPassword, setWrongPassword] = useState(false)
 
-  function handleLogin() {
-    if (password === 'agri2024') {
-      setIsAuthenticated(true)
-      setWrongPassword(false)
-    } else {
-      setWrongPassword(true)
-    }
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <main className="min-h-screen bg-green-50 flex items-center justify-center">
-        <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm mx-4">
-          <h1 className="text-2xl font-bold text-green-800 mb-2">🌾 Admin Access</h1>
-          <p className="text-gray-500 text-sm mb-6">Enter the admin password to continue</p>
-          <input
-            type="password"
-            placeholder="Enter password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleLogin()}
-            className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 
-                       mb-4 focus:border-green-500 focus:outline-none"/>
-          {wrongPassword && (
-            <p className="text-red-500 text-sm mb-4">❌ Wrong password. Try again.</p>
-          )}
-          <button
-            onClick={handleLogin}
-            className="w-full bg-green-600 text-white py-3 rounded-xl 
-                       hover:bg-green-700 transition font-semibold">
-            Login →
-          </button>
-        </div>
-      </main>
-    )
-  }
-
   useEffect(() => {
-    loadProducts()
-    loadOrders()
-  }, [])
+    if (isAuthenticated) {
+      loadProducts()
+      loadOrders()
+    }
+  }, [isAuthenticated])
 
   async function loadProducts() {
     const { data } = await supabase.from('products').select('*')
@@ -86,6 +51,15 @@ export default function AdminPage() {
       .select('*')
       .order('created_at', { ascending: false })
     setOrders(data || [])
+  }
+
+  function handleLogin() {
+    if (password === 'agri2024') {
+      setIsAuthenticated(true)
+      setWrongPassword(false)
+    } else {
+      setWrongPassword(true)
+    }
   }
 
   async function deleteProduct(id: number) {
@@ -132,6 +106,34 @@ export default function AdminPage() {
     setMessage('Order status updated!')
     loadOrders()
     setTimeout(() => setMessage(''), 3000)
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <main className="min-h-screen bg-green-50 flex items-center justify-center">
+        <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm mx-4">
+          <h1 className="text-2xl font-bold text-green-800 mb-2">🌾 Admin Access</h1>
+          <p className="text-gray-500 text-sm mb-6">Enter the admin password to continue</p>
+          <input
+            type="password"
+            placeholder="Enter password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleLogin()}
+            className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 
+                       mb-4 focus:border-green-500 focus:outline-none"/>
+          {wrongPassword && (
+            <p className="text-red-500 text-sm mb-4">❌ Wrong password. Try again.</p>
+          )}
+          <button
+            onClick={handleLogin}
+            className="w-full bg-green-600 text-white py-3 rounded-xl 
+                       hover:bg-green-700 transition font-semibold">
+            Login →
+          </button>
+        </div>
+      </main>
+    )
   }
 
   return (
