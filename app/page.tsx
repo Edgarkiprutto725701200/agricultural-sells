@@ -438,4 +438,3 @@ function OrdersList({ orders }: { orders: Order[] }) {
       ))}
     </>
   )
-}
