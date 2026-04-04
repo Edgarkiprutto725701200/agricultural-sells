@@ -29,6 +29,46 @@ export default function AdminPage() {
   })
   const [showAddForm, setShowAddForm] = useState(false)
   const [message, setMessage] = useState('')
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [password, setPassword] = useState('')
+  const [wrongPassword, setWrongPassword] = useState(false)
+
+  function handleLogin() {
+    if (password === 'agri2024') {
+      setIsAuthenticated(true)
+      setWrongPassword(false)
+    } else {
+      setWrongPassword(true)
+    }
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <main className="min-h-screen bg-green-50 flex items-center justify-center">
+        <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm mx-4">
+          <h1 className="text-2xl font-bold text-green-800 mb-2">🌾 Admin Access</h1>
+          <p className="text-gray-500 text-sm mb-6">Enter the admin password to continue</p>
+          <input
+            type="password"
+            placeholder="Enter password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleLogin()}
+            className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 
+                       mb-4 focus:border-green-500 focus:outline-none"/>
+          {wrongPassword && (
+            <p className="text-red-500 text-sm mb-4">❌ Wrong password. Try again.</p>
+          )}
+          <button
+            onClick={handleLogin}
+            className="w-full bg-green-600 text-white py-3 rounded-xl 
+                       hover:bg-green-700 transition font-semibold">
+            Login →
+          </button>
+        </div>
+      </main>
+    )
+  }
 
   useEffect(() => {
     loadProducts()
@@ -96,7 +136,6 @@ export default function AdminPage() {
 
   return (
     <main className="min-h-screen bg-gray-50">
-      {/* Header */}
       <div className="bg-green-700 text-white px-6 py-4">
         <div className="max-w-5xl mx-auto flex justify-between items-center">
           <div>
@@ -110,7 +149,6 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* Toast */}
       {message && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 
                         bg-green-600 text-white px-6 py-3 rounded-xl shadow-lg">
@@ -119,7 +157,6 @@ export default function AdminPage() {
       )}
 
       <div className="max-w-5xl mx-auto px-4 py-6">
-        {/* Tabs */}
         <div className="flex gap-2 mb-6">
           <button
             onClick={() => setActiveTab('products')}
@@ -141,7 +178,6 @@ export default function AdminPage() {
           </button>
         </div>
 
-        {/* Products Tab */}
         {activeTab === 'products' && (
           <div>
             <div className="flex justify-between items-center mb-4">
@@ -154,7 +190,6 @@ export default function AdminPage() {
               </button>
             </div>
 
-            {/* Add Product Form */}
             {showAddForm && (
               <div className="bg-white rounded-xl shadow p-6 mb-6">
                 <h3 className="font-bold text-gray-800 mb-4">New Product</h3>
@@ -188,7 +223,6 @@ export default function AdminPage() {
               </div>
             )}
 
-            {/* Products Table */}
             <div className="bg-white rounded-xl shadow overflow-hidden">
               <table className="w-full">
                 <thead className="bg-gray-50 border-b">
@@ -234,7 +268,6 @@ export default function AdminPage() {
               </table>
             </div>
 
-            {/* Edit Product Modal */}
             {editingProduct && (
               <div className="fixed inset-0 z-50 flex items-center justify-center">
                 <div className="absolute inset-0 bg-black bg-opacity-40"
@@ -274,7 +307,6 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* Orders Tab */}
         {activeTab === 'orders' && (
           <div>
             <h2 className="text-xl font-bold text-gray-800 mb-4">Orders</h2>
