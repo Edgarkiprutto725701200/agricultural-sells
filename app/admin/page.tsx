@@ -54,7 +54,7 @@ export default function AdminPage() {
   }
 
   function handleLogin() {
-    if if (password === 'Edgar456321') {
+    if if (password === 'agri2024') {
       setIsAuthenticated(true)
       setWrongPassword(false)
     } else {
