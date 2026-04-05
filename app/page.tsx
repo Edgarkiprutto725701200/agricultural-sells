@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from './supabase'
 
 type Product = {
@@ -22,6 +23,7 @@ type Order = {
 }
 
 export default function Home() {
+  const router = useRouter()
   const [products, setProducts] = useState<Product[]>([])
   const [cart, setCart] = useState<CartItem[]>([])
   const [showCart, setShowCart] = useState(false)
@@ -233,8 +235,9 @@ export default function Home() {
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
               {products.map(product => (
                 <div key={product.id}
+                     onClick={() => router.push(`/product/${product.id}`)}
                      className="bg-white rounded-xl shadow-md overflow-hidden
-                                hover:shadow-lg transition">
+                                hover:shadow-lg transition cursor-pointer">
                   {product.image ? (
                     <img
                       src={product.image}
@@ -265,7 +268,7 @@ export default function Home() {
                         KSh {product.price}
                       </span>
                       <button
-                        onClick={() => addToCart(product)}
+                        onClick={e => { e.stopPropagation(); addToCart(product) }}
                         className="bg-green-600 text-white px-2 py-1 md:px-4 md:py-2
                                    rounded-lg hover:bg-green-700 transition text-xs md:text-base">
                         Add
