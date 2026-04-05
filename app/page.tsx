@@ -79,17 +79,28 @@ export default function Home() {
     setCart(prev => prev.filter(item => item.id !== id))
   }
 
+  async function sendNotification(order: object) {
+    await fetch('/api/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ order })
+    })
+  }
+
   async function placeOrder() {
     if (cart.length === 0) return
     if (!deliveryInfo.name || !deliveryInfo.phone || !deliveryInfo.address) return
 
-    const { error } = await supabase.from('orders').insert({
+    const order = {
       total_price: totalPrice,
       status: 'pending',
       items: cart,
       delivery_info: deliveryInfo,
-    })
+    }
+
+    const { error } = await supabase.from('orders').insert(order)
     if (!error) {
+      await sendNotification(order)
       setCart([])
       setShowCart(false)
       setShowDelivery(false)
@@ -121,12 +132,14 @@ export default function Home() {
       const data = await res.json()
 
       if (data.ResponseCode === '0') {
-        await supabase.from('orders').insert({
+        const order = {
           total_price: totalPrice,
           status: 'pending',
           items: cart,
           delivery_info: deliveryInfo,
-        })
+        }
+        await supabase.from('orders').insert(order)
+        await sendNotification(order)
         setMpesaMessage('✅ STK Push sent! Check your phone to complete payment.')
         setTimeout(() => {
           setCart([])
@@ -152,15 +165,13 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-green-50">
 
-      {/* Toast */}
       {orderPlaced && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50
                         bg-green-600 text-white px-6 py-3 rounded-xl shadow-lg">
           ✅ Order placed! We will deliver to you soon 🚚
         </div>
       )}
 
-      {/* Delivery + Payment Modal */}
       {showDelivery && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black bg-opacity-50"
@@ -169,13 +180,11 @@ export default function Home() {
             <h2 className="text-xl font-bold text-green-800 mb-1">🚚 Delivery Details</h2>
             <p className="text-gray-500 text-sm mb-4">Tell us where to deliver your order</p>
 
-            {/* Order Summary */}
             <div className="bg-green-50 rounded-xl p-3 mb-4">
               <p className="text-sm text-gray-600">Order Total</p>
               <p className="text-2xl font-bold text-green-600">KSh {totalPrice}</p>
             </div>
 
-            {/* Delivery Form */}
             <div className="space-y-3 mb-4">
               <input
                 placeholder="Full Name *"
@@ -207,7 +216,6 @@ export default function Home() {
                            focus:border-green-500 focus:outline-none text-sm"/>
             </div>
 
-            {/* Payment Method */}
             <p className="font-medium text-gray-700 mb-2">Payment Method</p>
             <div className="flex gap-2 mb-4">
               <button
@@ -230,7 +238,6 @@ export default function Home() {
               </button>
             </div>
 
-            {/* M-Pesa message */}
             {mpesaMessage && (
               <p className={`text-sm mb-4 p-3 rounded-lg ${
                 mpesaMessage.startsWith('✅')
@@ -241,7 +248,6 @@ export default function Home() {
               </p>
             )}
 
-            {/* Submit Button */}
             <button
               onClick={paymentMethod === 'mpesa' ? handleMpesaPayment : placeOrder}
               disabled={mpesaLoading || !deliveryInfo.name || !deliveryInfo.phone || !deliveryInfo.address}
@@ -260,7 +266,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Header */}
       <div className="sticky top-0 z-30 bg-green-50 border-b border-green-100 px-4 py-3 md:px-8">
         <div className="max-w-5xl mx-auto flex justify-between items-center">
           <div>
@@ -299,8 +304,6 @@ export default function Home() {
 
       <div className="max-w-5xl mx-auto px-3 py-4 md:px-8">
         <div className="flex gap-6">
-
-          {/* Products Grid */}
           <div className="flex-1">
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
               {products.map(product => (
@@ -309,16 +312,11 @@ export default function Home() {
                      className="bg-white rounded-xl shadow-md overflow-hidden
                                 hover:shadow-lg transition cursor-pointer">
                   {product.image ? (
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-32 md:h-48 object-cover"
-                    />
+                    <img src={product.image} alt={product.name}
+                      className="w-full h-32 md:h-48 object-cover"/>
                   ) : (
                     <div className="w-full h-32 md:h-48 bg-green-100 flex items-center
-                                    justify-center text-4xl">
-                      🌿
-                    </div>
+                                    justify-center text-4xl">🌿</div>
                   )}
                   <div className="p-2 md:p-5">
                     <div className="flex justify-between items-start mb-1">
@@ -350,7 +348,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Cart Sidebar - desktop only */}
           {showCart && (
             <div className="hidden md:block w-80 bg-white rounded-xl shadow-lg p-6 h-fit sticky top-24">
               <h2 className="text-xl font-bold text-green-800 mb-4">🛒 Your Cart</h2>
@@ -363,7 +360,6 @@ export default function Home() {
             </div>
           )}
 
-          {/* Orders Sidebar - desktop only */}
           {showOrders && (
             <div className="hidden md:block w-80 bg-white rounded-xl shadow-lg p-6 h-fit sticky top-24 max-h-[80vh] overflow-y-auto">
               <h2 className="text-xl font-bold text-green-800 mb-4">📋 Order History</h2>
@@ -373,7 +369,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Cart Drawer - mobile only */}
       {showCart && (
         <div className="md:hidden fixed inset-0 z-40 flex flex-col justify-end">
           <div className="absolute inset-0 bg-black bg-opacity-40"
@@ -394,7 +389,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Orders Drawer - mobile only */}
       {showOrders && (
         <div className="md:hidden fixed inset-0 z-40 flex flex-col justify-end">
           <div className="absolute inset-0 bg-black bg-opacity-40"
@@ -454,8 +448,7 @@ function CartContent({
           <span>Total:</span>
           <span className="text-green-600">KSh {totalPrice}</span>
         </div>
-        <button
-          onClick={onCheckout}
+        <button onClick={onCheckout}
           className="w-full bg-green-600 text-white py-3 rounded-xl
                      hover:bg-green-700 transition font-semibold">
           🚚 Proceed to Checkout
