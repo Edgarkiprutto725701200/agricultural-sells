@@ -54,7 +54,7 @@ export default function AdminPage() {
   }
 
   function handleLogin() {
-   if (password === 'Edgar456321') {
+    if (password === 'Edgar456321') {
       setIsAuthenticated(true)
       setWrongPassword(false)
     } else {
@@ -120,14 +120,15 @@ export default function AdminPage() {
             value={password}
             onChange={e => setPassword(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleLogin()}
-            className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 
-                       mb-4 focus:border-green-500 focus:outline-none"/>
+            className="w-full border-2 border-gray-200 rounded-xl px-4 py-3
+                       mb-4 text-gray-900 placeholder-gray-400
+                       focus:border-green-500 focus:outline-none"/>
           {wrongPassword && (
             <p className="text-red-500 text-sm mb-4">❌ Wrong password. Try again.</p>
           )}
           <button
             onClick={handleLogin}
-            className="w-full bg-green-600 text-white py-3 rounded-xl 
+            className="w-full bg-green-600 text-white py-3 rounded-xl
                        hover:bg-green-700 transition font-semibold">
             Login →
           </button>
@@ -144,7 +145,7 @@ export default function AdminPage() {
             <h1 className="text-2xl font-bold">🌾 Admin Dashboard</h1>
             <p className="text-green-200 text-sm">Agricultural Sells Management</p>
           </div>
-          <a href="/" className="bg-white text-green-700 px-4 py-2 rounded-lg 
+          <a href="/" className="bg-white text-green-700 px-4 py-2 rounded-lg
                                   font-medium hover:bg-green-50 transition text-sm">
             ← Back to Store
           </a>
@@ -152,7 +153,7 @@ export default function AdminPage() {
       </div>
 
       {message && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50
                         bg-green-600 text-white px-6 py-3 rounded-xl shadow-lg">
           ✅ {message}
         </div>
@@ -190,19 +191,19 @@ export default function AdminPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <input placeholder="Name" value={newProduct.name}
                     onChange={e => setNewProduct({...newProduct, name: e.target.value})}
-                    className="border rounded-lg px-3 py-2 text-sm"/>
+                    className="border rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400"/>
                   <input placeholder="Price (KSh)" value={newProduct.price} type="number"
                     onChange={e => setNewProduct({...newProduct, price: e.target.value})}
-                    className="border rounded-lg px-3 py-2 text-sm"/>
+                    className="border rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400"/>
                   <input placeholder="Category" value={newProduct.category}
                     onChange={e => setNewProduct({...newProduct, category: e.target.value})}
-                    className="border rounded-lg px-3 py-2 text-sm"/>
+                    className="border rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400"/>
                   <input placeholder="Image URL" value={newProduct.image}
                     onChange={e => setNewProduct({...newProduct, image: e.target.value})}
-                    className="border rounded-lg px-3 py-2 text-sm"/>
+                    className="border rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400"/>
                   <input placeholder="Description" value={newProduct.description}
                     onChange={e => setNewProduct({...newProduct, description: e.target.value})}
-                    className="border rounded-lg px-3 py-2 text-sm md:col-span-2"/>
+                    className="border rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400 md:col-span-2"/>
                 </div>
                 <div className="flex gap-2 mt-4">
                   <button onClick={addProduct}
@@ -266,19 +267,19 @@ export default function AdminPage() {
                   <div className="grid grid-cols-1 gap-4">
                     <input placeholder="Name" value={editingProduct.name}
                       onChange={e => setEditingProduct({...editingProduct, name: e.target.value})}
-                      className="border rounded-lg px-3 py-2 text-sm"/>
+                      className="border rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400"/>
                     <input placeholder="Price" value={editingProduct.price} type="number"
                       onChange={e => setEditingProduct({...editingProduct, price: Number(e.target.value)})}
-                      className="border rounded-lg px-3 py-2 text-sm"/>
+                      className="border rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400"/>
                     <input placeholder="Category" value={editingProduct.category}
                       onChange={e => setEditingProduct({...editingProduct, category: e.target.value})}
-                      className="border rounded-lg px-3 py-2 text-sm"/>
+                      className="border rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400"/>
                     <input placeholder="Image URL" value={editingProduct.image || ''}
                       onChange={e => setEditingProduct({...editingProduct, image: e.target.value})}
-                      className="border rounded-lg px-3 py-2 text-sm"/>
+                      className="border rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400"/>
                     <input placeholder="Description" value={editingProduct.description}
                       onChange={e => setEditingProduct({...editingProduct, description: e.target.value})}
-                      className="border rounded-lg px-3 py-2 text-sm"/>
+                      className="border rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400"/>
                   </div>
                   <div className="flex gap-2 mt-4">
                     <button onClick={saveEditProduct}
