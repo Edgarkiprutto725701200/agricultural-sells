@@ -22,6 +22,13 @@ type Order = {
   items: CartItem[]
 }
 
+type DeliveryInfo = {
+  name: string
+  phone: string
+  address: string
+  town: string
+}
+
 export default function Home() {
   const router = useRouter()
   const [products, setProducts] = useState<Product[]>([])
@@ -31,7 +38,11 @@ export default function Home() {
   const [orders, setOrders] = useState<Order[]>([])
   const [orderPlaced, setOrderPlaced] = useState(false)
   const [showMpesa, setShowMpesa] = useState(false)
-  const [phone, setPhone] = useState('')
+  const [showDelivery, setShowDelivery] = useState(false)
+  const [deliveryInfo, setDeliveryInfo] = useState<DeliveryInfo>({
+    name: '', phone: '', address: '', town: ''
+  })
+  const [paymentMethod, setPaymentMethod] = useState<'mpesa' | 'cod'>('cod')
   const [mpesaLoading, setMpesaLoading] = useState(false)
   const [mpesaMessage, setMpesaMessage] = useState('')
 
@@ -71,25 +82,30 @@ export default function Home() {
 
   async function placeOrder() {
     if (cart.length === 0) return
+    if (!deliveryInfo.name || !deliveryInfo.phone || !deliveryInfo.address) return
+
     const { error } = await supabase.from('orders').insert({
       total_price: totalPrice,
       status: 'pending',
       items: cart,
+      delivery_info: deliveryInfo,
     })
     if (!error) {
       setCart([])
       setShowCart(false)
+      setShowDelivery(false)
+      setDeliveryInfo({ name: '', phone: '', address: '', town: '' })
       setOrderPlaced(true)
       setTimeout(() => setOrderPlaced(false), 3000)
     }
   }
 
   async function handleMpesaPayment() {
-    if (!phone) return
+    if (!deliveryInfo.name || !deliveryInfo.phone || !deliveryInfo.address) return
     setMpesaLoading(true)
     setMpesaMessage('')
 
-    let formattedPhone = phone.trim()
+    let formattedPhone = deliveryInfo.phone.trim()
     if (formattedPhone.startsWith('0')) {
       formattedPhone = '254' + formattedPhone.slice(1)
     }
@@ -110,13 +126,14 @@ export default function Home() {
           total_price: totalPrice,
           status: 'pending',
           items: cart,
+          delivery_info: deliveryInfo,
         })
         setMpesaMessage('✅ STK Push sent! Check your phone to complete payment.')
         setTimeout(() => {
           setCart([])
           setShowCart(false)
-          setShowMpesa(false)
-          setPhone('')
+          setShowDelivery(false)
+          setDeliveryInfo({ name: '', phone: '', address: '', town: '' })
           setMpesaMessage('')
           setOrderPlaced(true)
           setTimeout(() => setOrderPlaced(false), 3000)
@@ -140,29 +157,77 @@ export default function Home() {
       {orderPlaced && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 
                         bg-green-600 text-white px-6 py-3 rounded-xl shadow-lg">
-          ✅ Order placed successfully!
+          ✅ Order placed! We will deliver to you soon 🚚
         </div>
       )}
 
-      {/* M-Pesa Modal */}
-      {showMpesa && (
+      {/* Delivery + Payment Modal */}
+      {showDelivery && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black bg-opacity-50"
-            onClick={() => setShowMpesa(false)} />
-          <div className="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm mx-4">
-            <h2 className="text-xl font-bold text-green-800 mb-1">💚 M-Pesa Payment</h2>
-            <p className="text-gray-500 text-sm mb-4">Enter your Safaricom number to pay</p>
-            <div className="bg-green-50 rounded-xl p-4 mb-4">
-              <p className="text-sm text-gray-600">Total Amount</p>
-              <p className="text-3xl font-bold text-green-600">KSh {totalPrice}</p>
+            onClick={() => setShowDelivery(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm mx-4 max-h-[90vh] overflow-y-auto">
+            <h2 className="text-xl font-bold text-green-800 mb-1">🚚 Delivery Details</h2>
+            <p className="text-gray-500 text-sm mb-4">Tell us where to deliver your order</p>
+
+            {/* Order Summary */}
+            <div className="bg-green-50 rounded-xl p-3 mb-4">
+              <p className="text-sm text-gray-600">Order Total</p>
+              <p className="text-2xl font-bold text-green-600">KSh {totalPrice}</p>
             </div>
-            <input
-              type="tel"
-              placeholder="07XXXXXXXX"
-              value={phone}
-              onChange={e => setPhone(e.target.value)}
-              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 
-                         text-lg mb-4 focus:border-green-500 focus:outline-none"/>
+
+            {/* Delivery Form */}
+            <div className="space-y-3 mb-4">
+              <input
+                placeholder="Full Name *"
+                value={deliveryInfo.name}
+                onChange={e => setDeliveryInfo({...deliveryInfo, name: e.target.value})}
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 
+                           focus:border-green-500 focus:outline-none text-sm"/>
+              <input
+                placeholder="Phone Number * (07XXXXXXXX)"
+                value={deliveryInfo.phone}
+                onChange={e => setDeliveryInfo({...deliveryInfo, phone: e.target.value})}
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 
+                           focus:border-green-500 focus:outline-none text-sm"/>
+              <input
+                placeholder="Delivery Address * (e.g. Kenyatta Ave, House No. 5)"
+                value={deliveryInfo.address}
+                onChange={e => setDeliveryInfo({...deliveryInfo, address: e.target.value})}
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 
+                           focus:border-green-500 focus:outline-none text-sm"/>
+              <input
+                placeholder="Town/Area (e.g. Nairobi, Eldoret)"
+                value={deliveryInfo.town}
+                onChange={e => setDeliveryInfo({...deliveryInfo, town: e.target.value})}
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 
+                           focus:border-green-500 focus:outline-none text-sm"/>
+            </div>
+
+            {/* Payment Method */}
+            <p className="font-medium text-gray-700 mb-2">Payment Method</p>
+            <div className="flex gap-2 mb-4">
+              <button
+                onClick={() => setPaymentMethod('mpesa')}
+                className={`flex-1 py-2 rounded-xl text-sm font-medium border-2 transition ${
+                  paymentMethod === 'mpesa'
+                    ? 'border-green-600 bg-green-50 text-green-700'
+                    : 'border-gray-200 text-gray-600'
+                }`}>
+                💚 M-Pesa
+              </button>
+              <button
+                onClick={() => setPaymentMethod('cod')}
+                className={`flex-1 py-2 rounded-xl text-sm font-medium border-2 transition ${
+                  paymentMethod === 'cod'
+                    ? 'border-green-600 bg-green-50 text-green-700'
+                    : 'border-gray-200 text-gray-600'
+                }`}>
+                💵 Cash on Delivery
+              </button>
+            </div>
+
+            {/* M-Pesa message */}
             {mpesaMessage && (
               <p className={`text-sm mb-4 p-3 rounded-lg ${
                 mpesaMessage.startsWith('✅')
@@ -172,16 +237,18 @@ export default function Home() {
                 {mpesaMessage}
               </p>
             )}
+
+            {/* Submit Button */}
             <button
-              onClick={handleMpesaPayment}
-              disabled={mpesaLoading || !phone}
+              onClick={paymentMethod === 'mpesa' ? handleMpesaPayment : placeOrder}
+              disabled={mpesaLoading || !deliveryInfo.name || !deliveryInfo.phone || !deliveryInfo.address}
               className="w-full bg-green-600 text-white py-3 rounded-xl 
                          hover:bg-green-700 transition font-semibold disabled:opacity-50
                          disabled:cursor-not-allowed mb-2">
-              {mpesaLoading ? '⏳ Sending...' : '💚 Pay with M-Pesa'}
+              {mpesaLoading ? '⏳ Sending...' : paymentMethod === 'mpesa' ? '💚 Pay with M-Pesa' : '🚚 Place Order'}
             </button>
             <button
-              onClick={() => setShowMpesa(false)}
+              onClick={() => setShowDelivery(false)}
               className="w-full bg-gray-100 text-gray-600 py-3 rounded-xl 
                          hover:bg-gray-200 transition font-medium">
               Cancel
@@ -288,8 +355,7 @@ export default function Home() {
                 cart={cart}
                 totalPrice={totalPrice}
                 removeFromCart={removeFromCart}
-                onCheckout={placeOrder}
-                onMpesa={() => setShowMpesa(true)}
+                onCheckout={() => { setShowCart(false); setShowDelivery(true) }}
               />
             </div>
           )}
@@ -319,8 +385,7 @@ export default function Home() {
               cart={cart}
               totalPrice={totalPrice}
               removeFromCart={removeFromCart}
-              onCheckout={placeOrder}
-              onMpesa={() => { setShowCart(false); setShowMpesa(true) }}
+              onCheckout={() => { setShowCart(false); setShowDelivery(true) }}
             />
           </div>
         </div>
@@ -346,13 +411,12 @@ export default function Home() {
 }
 
 function CartContent({
-  cart, totalPrice, removeFromCart, onCheckout, onMpesa
+  cart, totalPrice, removeFromCart, onCheckout
 }: {
   cart: CartItem[]
   totalPrice: number
   removeFromCart: (id: number) => void
   onCheckout: () => void
-  onMpesa: () => void
 }) {
   if (cart.length === 0) {
     return <p className="text-gray-500">Your cart is empty</p>
@@ -387,15 +451,11 @@ function CartContent({
           <span>Total:</span>
           <span className="text-green-600">KSh {totalPrice}</span>
         </div>
-        <button onClick={onMpesa}
+        <button
+          onClick={onCheckout}
           className="w-full bg-green-600 text-white py-3 rounded-xl 
-                     hover:bg-green-700 transition font-semibold mb-2">
-          💚 Pay with M-Pesa
-        </button>
-        <button onClick={onCheckout}
-          className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl 
-                     hover:bg-gray-200 transition font-medium">
-          Cash on Delivery
+                     hover:bg-green-700 transition font-semibold">
+          🚚 Proceed to Checkout
         </button>
       </div>
     </>
