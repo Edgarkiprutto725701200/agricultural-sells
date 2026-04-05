@@ -37,7 +37,6 @@ export default function Home() {
   const [showOrders, setShowOrders] = useState(false)
   const [orders, setOrders] = useState<Order[]>([])
   const [orderPlaced, setOrderPlaced] = useState(false)
-  const [showMpesa, setShowMpesa] = useState(false)
   const [showDelivery, setShowDelivery] = useState(false)
   const [deliveryInfo, setDeliveryInfo] = useState<DeliveryInfo>({
     name: '', phone: '', address: '', town: ''
@@ -182,25 +181,29 @@ export default function Home() {
                 placeholder="Full Name *"
                 value={deliveryInfo.name}
                 onChange={e => setDeliveryInfo({...deliveryInfo, name: e.target.value})}
-                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3
+                           text-gray-900 placeholder-gray-400
                            focus:border-green-500 focus:outline-none text-sm"/>
               <input
                 placeholder="Phone Number * (07XXXXXXXX)"
                 value={deliveryInfo.phone}
                 onChange={e => setDeliveryInfo({...deliveryInfo, phone: e.target.value})}
-                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3
+                           text-gray-900 placeholder-gray-400
                            focus:border-green-500 focus:outline-none text-sm"/>
               <input
                 placeholder="Delivery Address * (e.g. Kenyatta Ave, House No. 5)"
                 value={deliveryInfo.address}
                 onChange={e => setDeliveryInfo({...deliveryInfo, address: e.target.value})}
-                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3
+                           text-gray-900 placeholder-gray-400
                            focus:border-green-500 focus:outline-none text-sm"/>
               <input
                 placeholder="Town/Area (e.g. Nairobi, Eldoret)"
                 value={deliveryInfo.town}
                 onChange={e => setDeliveryInfo({...deliveryInfo, town: e.target.value})}
-                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 
+                className="w-full border-2 border-gray-200 rounded-xl px-4 py-3
+                           text-gray-900 placeholder-gray-400
                            focus:border-green-500 focus:outline-none text-sm"/>
             </div>
 
@@ -242,14 +245,14 @@ export default function Home() {
             <button
               onClick={paymentMethod === 'mpesa' ? handleMpesaPayment : placeOrder}
               disabled={mpesaLoading || !deliveryInfo.name || !deliveryInfo.phone || !deliveryInfo.address}
-              className="w-full bg-green-600 text-white py-3 rounded-xl 
+              className="w-full bg-green-600 text-white py-3 rounded-xl
                          hover:bg-green-700 transition font-semibold disabled:opacity-50
                          disabled:cursor-not-allowed mb-2">
               {mpesaLoading ? '⏳ Sending...' : paymentMethod === 'mpesa' ? '💚 Pay with M-Pesa' : '🚚 Place Order'}
             </button>
             <button
               onClick={() => setShowDelivery(false)}
-              className="w-full bg-gray-100 text-gray-600 py-3 rounded-xl 
+              className="w-full bg-gray-100 text-gray-600 py-3 rounded-xl
                          hover:bg-gray-200 transition font-medium">
               Cancel
             </button>
@@ -272,19 +275,19 @@ export default function Home() {
             <button
               onClick={() => { setShowOrders(!showOrders); setShowCart(false); loadOrders() }}
               className="bg-white border border-green-600 text-green-600 px-2 py-1
-                         md:px-4 md:py-3 rounded-xl hover:bg-green-50 transition 
+                         md:px-4 md:py-3 rounded-xl hover:bg-green-50 transition
                          text-xs md:text-base">
               📋 Orders
             </button>
             <button
               onClick={() => { setShowCart(!showCart); setShowOrders(false) }}
-              className="bg-green-600 text-white px-3 py-1 md:px-6 md:py-3 
+              className="bg-green-600 text-white px-3 py-1 md:px-6 md:py-3
                          rounded-xl hover:bg-green-700 transition flex items-center gap-1">
               🛒
               <span className="hidden sm:inline text-sm">Cart</span>
               {totalItems > 0 && (
-                <span className="bg-white text-green-600 font-bold 
-                                 rounded-full w-5 h-5 flex items-center 
+                <span className="bg-white text-green-600 font-bold
+                                 rounded-full w-5 h-5 flex items-center
                                  justify-center text-xs">
                   {totalItems}
                 </span>
@@ -312,7 +315,7 @@ export default function Home() {
                       className="w-full h-32 md:h-48 object-cover"
                     />
                   ) : (
-                    <div className="w-full h-32 md:h-48 bg-green-100 flex items-center 
+                    <div className="w-full h-32 md:h-48 bg-green-100 flex items-center
                                     justify-center text-4xl">
                       🌿
                     </div>
@@ -435,7 +438,7 @@ function CartContent({
               </div>
             )}
             <div>
-              <p className="font-medium text-sm">{item.name}</p>
+              <p className="font-medium text-sm text-gray-900">{item.name}</p>
               <p className="text-xs text-gray-500">KSh {item.price} x {item.quantity}</p>
             </div>
           </div>
@@ -453,7 +456,7 @@ function CartContent({
         </div>
         <button
           onClick={onCheckout}
-          className="w-full bg-green-600 text-white py-3 rounded-xl 
+          className="w-full bg-green-600 text-white py-3 rounded-xl
                      hover:bg-green-700 transition font-semibold">
           🚚 Proceed to Checkout
         </button>
